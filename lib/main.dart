@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:realest/CarSearchPage.dart';
+import 'package:realest/PreprocessingTestPage.dart';
 import 'package:realest/firebase_options.dart';
 import 'package:realest/profileHistory.dart';
 import 'image_display.dart';
@@ -313,6 +314,7 @@ class _MainPageState extends State<MainPage> {
                       MaterialPageRoute(
                           builder: (context) =>
                               ImageDisplay(source: 'gallery')),
+                      // PreprocessingTestPage(source: 'gallery')),
                     );
                   },
                 ),

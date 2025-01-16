@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:realest/car_info.dart';
-// import 'package:realest/profileHistory.dart';
+import 'package:realest/main.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image/image.dart' as img;
-import 'dart:typed_data'; // Import this to use Float32List
-import 'package:flutter/services.dart'; // Import to use rootBundle
+import 'dart:typed_data';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class ImageDisplay extends StatefulWidget {
-  final String source; // Either 'camera' or 'gallery'
+  final String source;
   ImageDisplay({required this.source});
 
   @override
@@ -21,41 +21,27 @@ class ImageDisplay extends StatefulWidget {
 
 class _ImageDisplayState extends State<ImageDisplay> {
   File? _image;
-  String _result = "No prediction yet";
+  String _result = "No Prediction Yet";
   final ImagePicker _picker = ImagePicker();
   late Interpreter _interpreter;
   late List<String> _labels;
 
-  // Pick image from gallery or camera
   Future<void> _pickImage() async {
     final pickedFile = widget.source == 'gallery'
         ? await _picker.pickImage(source: ImageSource.gallery)
         : await _picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
-      if (mounted) {
-        setState(() {
-          _image = File(pickedFile.path);
-          _result = "Processing...";
-        });
-      }
-
-      // // Remove background
-      // File? backgroundRemovedFile = await _removeBackground(_image!);
-      // if (backgroundRemovedFile != null && mounted) {
-      //   setState(() {
-      //     _image = backgroundRemovedFile;
-      //   });
-      // }
+      setState(() {
+        _image = File(pickedFile.path);
+        _result = "Processing...";
+      });
 
       String prediction = await _predictImage(_image!);
       if (mounted) {
         setState(() {
           _result = prediction;
         });
-
-        // // Add history entry using your existing method
-        // await addHistoryEntry('Predicted Car', prediction);
       }
     }
   }
@@ -68,120 +54,46 @@ class _ImageDisplayState extends State<ImageDisplay> {
     super.dispose();
   }
 
-  // final String flaskServerUrl = 'http://172.20.10.4:5000/remove-bg';
-
-  // final String flaskServerUrl = 'http://10.0.2.2:5000/remove-bg';
-
-  // final String flaskServerUrl = 'http://192.168.100.185:5000/remove-bg';
-
-  // // Function to remove background using Rembg API
-  // Future<File?> _removeBackground(File image) async {
-  //   if (_isDisposed) return null; // Stop processing if disposed
-  //   try {
-  //     // Open the image file and send it to the server
-  //     List<int> imageBytes = image.readAsBytesSync();
-  //     print(
-  //         'Image bytes length: ${imageBytes.length}'); // Log to check image size
-
-  //     var request = http.MultipartRequest('POST', Uri.parse(flaskServerUrl));
-  //     request.files.add(http.MultipartFile.fromBytes('file', imageBytes,
-  //         filename: 'image.png'));
-
-  //     // Set headers if needed (e.g., content type)
-  //     request.headers.addAll({
-  //       'Content-Type': 'multipart/form-data',
-  //     });
-
-  //     var response = await request.send();
-
-  //     if (response.statusCode == 200) {
-  //       // Get the response image and save it to a file
-  //       var responseData = await http.Response.fromStream(response);
-  //       final directory = await Directory.systemTemp.createTemp();
-  //       final outputFile = File('${directory.path}/image_no_bg.png');
-  //       await outputFile.writeAsBytes(responseData.bodyBytes);
-  //       return outputFile;
-  //     } else {
-  //       print(
-  //           'Background removal failed with status code: ${response.statusCode}');
-  //       return null; // Return null if background removal fails
-  //     }
-  //   } catch (e) {
-  //     if (_isDisposed) return null;
-  //     print("Error removing background: $e");
-  //     return null;
-  //   }
-  // }
-
-  // Load TFLite model and make prediction
   Future<String> _predictImage(File image) async {
     if (_isDisposed) return "Widget disposed, operation canceled";
     String result = "Failed to load model";
     try {
-      // Load the TFLite model
-      _interpreter =
-          await Interpreter.fromAsset('assets/car_classifier_model2.tflite');
+      _interpreter = await Interpreter.fromAsset('assets/ModelC.tflite');
       _labels = await _loadLabels();
 
-      // Decode the image and resize it
       img.Image? inputImage = img.decodeImage(image.readAsBytesSync());
-      if (inputImage == null) {
-        return "Image decoding failed";
-      }
-      inputImage = img.copyResize(inputImage, width: 224, height: 224);
+      if (inputImage == null) return "Image decoding failed";
 
-      // Create a new blank image with the target dimensions
-      img.Image paddedImage = img.Image(width: 224, height: 224);
-      img.fill(paddedImage,
-          color: img.ColorFloat16.rgba(0, 0, 0, 0)); // Black background
+      // Resize while maintaining aspect ratio
+      img.Image resizedImage = _resizeWithAspectRatio(inputImage, 224);
 
-      int targetWidth = 224;
-      int targetHeight = 224;
+      // Add black padding to make it 224x224
+      img.Image paddedImage = _padToSquare(resizedImage, 224);
 
-      // Manually copy each pixel from inputImage to paddedImage
-      for (int y = 0; y < inputImage.height; y++) {
-        for (int x = 0; x < inputImage.width; x++) {
-          img.Pixel pixel = inputImage.getPixel(x, y);
-          paddedImage.setPixel((targetWidth - 224) ~/ 2 + x,
-              (targetHeight - 224) ~/ 2 + y, pixel);
-        }
-      }
+      // Convert image to normalized Float32List
+      Float32List input = _imageToFloat32List(paddedImage);
 
-      // Convert image to a format acceptable by the model (normalized Float32List)
-      List<int> pixels = paddedImage.getBytes();
-      List<double> inputList = [];
-      for (int i = 0; i < pixels.length; i++) {
-        inputList.add(pixels[i] / 255.0); // Normalize pixel value to [0, 1]
-      }
+      // Reshape to match model input [1, 224, 224, 3]
+      var reshapedInput = input.reshape([1, 224, 224, 3]);
 
-      // Convert the list into a Float32List and reshape if needed
-      Float32List input = Float32List.fromList(inputList);
+      var output = List.generate(1, (index) => List.filled(242, 0.0));
 
-      // Prepare the output array with the correct shape (24, 236)
-      var output = List.generate(24, (index) => List.filled(217, 0.0));
+      // Simulate the delay before prediction
+      await Future.delayed(Duration(seconds: 2));
 
-      // Run the model inference
-      _interpreter.run(input, output);
+      _interpreter.run(reshapedInput, output);
 
-      // Extract the top prediction (find the max value in the output for each entry in the first dimension)
       double highestProbability = -1;
       int topClassIndex = -1;
-
-      // We are looking for the highest probability in the second dimension (236 classes)
-      for (var i = 0; i < output.length; i++) {
-        for (var j = 0; j < output[i].length; j++) {
-          if (output[i][j] > highestProbability) {
-            highestProbability = output[i][j];
-            topClassIndex =
-                j; // Store the index of the highest probability class
-          }
+      for (int i = 0; i < output[0].length; i++) {
+        if (output[0][i] > highestProbability) {
+          highestProbability = output[0][i];
+          topClassIndex = i;
         }
       }
 
-      // Now `topClassIndex` will hold the index of the class with the highest probability
-      result = _labels[topClassIndex]; // Get the corresponding class label
-
-      _interpreter.close(); // Close the interpreter after use
+      result = _labels[topClassIndex];
+      _interpreter.close();
     } catch (e) {
       if (_isDisposed) return "Widget disposed, operation canceled";
       result = "Error during prediction: $e";
@@ -189,8 +101,59 @@ class _ImageDisplayState extends State<ImageDisplay> {
     return result;
   }
 
+  img.Image _resizeWithAspectRatio(img.Image image, int targetSize) {
+    int originalWidth = image.width;
+    int originalHeight = image.height;
+    double aspectRatio = originalWidth / originalHeight;
+
+    int newWidth, newHeight;
+    if (aspectRatio > 1) {
+      newWidth = targetSize;
+      newHeight = (targetSize / aspectRatio).round();
+    } else {
+      newHeight = targetSize;
+      newWidth = (targetSize * aspectRatio).round();
+    }
+
+    return img.copyResize(image, width: newWidth, height: newHeight);
+  }
+
+  img.Image _padToSquare(img.Image image, int targetSize) {
+    // Create a new blank image with the target dimensions
+    img.Image paddedImage = img.Image(width: targetSize, height: targetSize);
+    img.fill(paddedImage,
+        color: img.ColorFloat16.rgba(0, 0, 0, 0)); // Black background
+
+    int paddingX = (targetSize - image.width) ~/ 2;
+    int paddingY = (targetSize - image.height) ~/ 2;
+
+    // Manually copy each pixel from image to paddedImage
+    for (int y = 0; y < image.height; y++) {
+      for (int x = 0; x < image.width; x++) {
+        img.Pixel pixel = image.getPixel(x, y);
+        paddedImage.setPixel(paddingX + x, paddingY + y, pixel);
+      }
+    }
+
+    return paddedImage;
+  }
+
+  Float32List _imageToFloat32List(img.Image image) {
+    List<double> inputList = [];
+    for (int y = 0; y < image.height; y++) {
+      for (int x = 0; x < image.width; x++) {
+        img.Pixel pixel = image.getPixel(x, y);
+        inputList.add((pixel.r - 123.68) /
+            255.0); // Subtract RGB means from ImageNet data
+        inputList.add((pixel.g - 116.78) / 255.0);
+        inputList.add((pixel.b - 103.94) / 255.0);
+      }
+    }
+    return Float32List.fromList(inputList);
+  }
+
   Future<List<String>> _loadLabels() async {
-    String labelsFile = await rootBundle.loadString('assets/listNEW2.txt');
+    String labelsFile = await rootBundle.loadString('assets/VGG16NameList.txt');
     return labelsFile.split('\n');
   }
 
@@ -215,6 +178,30 @@ class _ImageDisplayState extends State<ImageDisplay> {
         ),
         centerTitle: true,
         backgroundColor: Color.fromARGB(255, 128, 0, 32),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            // Check if an image is selected and a prediction is done
+            if (_image == null || _result == null || _result.isEmpty) {
+              // No image selected or no prediction, navigate to the MainPage
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MainPage(), // Navigate to MainPage if no image or prediction
+                ),
+              );
+            } else {
+              // If image is selected and prediction is done, go back to gallery
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ImageDisplay(source: 'gallery'),
+                ),
+              );
+            }
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
@@ -234,36 +221,56 @@ class _ImageDisplayState extends State<ImageDisplay> {
                   ),
                 ],
               ),
-              child: _image == null
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(50.0),
-                        child: Text(
-                          "No Image Selected",
-                          style: TextStyle(color: Colors.grey),
+              child: _image != null
+                  ? Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(255, 128, 0, 32),
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(17),
+                        child: Image.file(
+                          _image!,
+                          width: double.infinity,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.file(
-                        _image!,
-                        height: 250,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
+                  : Center(
+                      child: Text(
+                        'No Image Selected',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 128, 0, 32),
+                        ),
                       ),
                     ),
             ),
             const SizedBox(height: 20),
-            Text(
-              _result.replaceAll('_', ' '),
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 128, 0, 32),
-              ),
-              textAlign: TextAlign.center,
-            ),
+            _result != null && _result.isNotEmpty
+                ? Text(
+                    _result.replaceAll('_', ' '),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 128, 0, 32),
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                : Center(
+                    child: Text(
+                      'No Prediction Yet',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 128, 0, 32),
+                      ),
+                    ),
+                  ),
             const SizedBox(height: 10),
 
             // Add LinearProgressIndicator here if processing
@@ -292,7 +299,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: _result != "Processing..." && _image != null
                     ? Color.fromARGB(255, 128, 0, 32)
-                    : Colors.grey, // Disabled state color
+                    : Colors.grey,
                 padding: EdgeInsets.symmetric(vertical: 15),
                 textStyle: TextStyle(
                   fontSize: 20,
@@ -310,7 +317,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
                     Icons.info_outline,
                     color: _result != "Processing..." && _image != null
                         ? Color.fromARGB(255, 245, 245, 220)
-                        : Colors.white, // Adjust icon color for disabled state
+                        : Colors.white,
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -320,7 +327,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
                       fontWeight: FontWeight.bold,
                       color: _result != "Processing..." && _image != null
                           ? Color.fromARGB(255, 245, 245, 220)
-                          : Colors.white, // Text color for disabled state
+                          : Colors.white,
                     ),
                   ),
                 ],

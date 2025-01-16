@@ -61,7 +61,9 @@ flutter {
 }
 
 dependencies {
-    implementation 'org.tensorflow:tensorflow-lite:2.12.0'  // Add TensorFlow Lite dependency here
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation 'org.tensorflow:tensorflow-lite:2.12.0'  // TensorFlow Lite for ML
+    implementation 'com.google.firebase:firebase-auth'  // Firebase Authentication
+    implementation 'com.google.firebase:firebase-firestore'  // Firestore dependency
+    implementation platform("com.google.firebase:firebase-bom")  // Firebase BOM for version management
     // Other dependencies (if any) can be added here
 }

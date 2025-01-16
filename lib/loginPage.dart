@@ -15,6 +15,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     try {
+      // Attempt to log in with the provided email and password
       await _auth.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
@@ -25,9 +26,15 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       String errorText = 'An unknown error occurred. Please try again.';
 
-      if (e is FirebaseAuthException) {
-        print('Firebase Auth Error: ${e.code}'); // Log error code
+      // Log the exception for debugging
+      print('Error: $e');
 
+      if (e is FirebaseAuthException) {
+        // Log the error code and message to help with debugging
+        print('Firebase Auth Error: ${e.code}');
+        print('Error details: ${e.message}');
+
+        // Handle specific FirebaseAuthException error codes
         switch (e.code) {
           case 'user-not-found':
             errorText =
@@ -48,12 +55,21 @@ class _LoginScreenState extends State<LoginScreen> {
             errorText =
                 'Too many login attempts. Please try again later or reset your password if needed.';
             break;
+          case 'email-already-in-use':
+            errorText =
+                'This email is already associated with an account. Please log in or reset your password if you forgot it.';
+            break;
           default:
             errorText = 'An error occurred. Please try again later.';
             break;
         }
+      } else {
+        // In case it's not a FirebaseAuthException, log it as a general error
+        errorText = 'An unknown error occurred. Please try again.';
+        print('Non-Firebase error: $e');
       }
 
+      // Update UI to show the error message
       setState(() {
         errorMessage = errorText;
       });
