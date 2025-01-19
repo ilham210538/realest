@@ -21,7 +21,7 @@ dependencies:
   cloud_firestore: ^5.6.1
   firebase_auth: ^5.4.0
   intl: ^0.20.1
-  
+  animated_text_kit: ^4.2.1  
 
 dev_dependencies:
   flutter_test:
@@ -38,4 +38,6 @@ flutter:
     - assets/finalModel.tflite
     - assets/FinalList.txt
     - assets/ModelC.tflite
+    - assets/ModelA_GB.tflite
+    - assets/GBFINAL.txt
   uses-material-design: true

@@ -115,15 +115,20 @@ class VariantDetailPage extends StatelessWidget {
         future: _getVariantDetails(variantId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: LinearProgressIndicator(
+            return Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child:
+                        ListView(), // Empty list to ensure space is available
+                  ),
+                ),
+                LinearProgressIndicator(
                   color: Color.fromARGB(255, 128, 0, 32),
                   minHeight: 3.5,
-                ),
-              ),
+                ), // Progress bar at the bottom with no padding
+              ],
             );
           } else if (snapshot.hasError || snapshot.data?['Error'] != null) {
             return Center(
@@ -205,8 +210,7 @@ class VariantDetailPage extends StatelessWidget {
                         for (var category in groupedCarInfo.entries)
                           if (category.key != 'Error')
                             Padding(
-                              padding: const EdgeInsets.only(
-                                  bottom: 8.0), // Reduced space
+                              padding: const EdgeInsets.only(bottom: 8.0),
                               child: Card(
                                 elevation: 5,
                                 shadowColor: Colors.black.withOpacity(0.1),
@@ -237,8 +241,8 @@ class VariantDetailPage extends StatelessWidget {
                                   children: [
                                     for (var entry in category.value.entries)
                                       Padding(
-                                        padding: const EdgeInsets.only(
-                                            bottom: 4.0), // Reduced space
+                                        padding:
+                                            const EdgeInsets.only(bottom: 4.0),
                                         child: ListTile(
                                           title: Text(
                                             entry.key.replaceAll('_', ' '),
@@ -266,7 +270,7 @@ class VariantDetailPage extends StatelessWidget {
                   ),
 
                   // Button to navigate to the loan calculator with shadows
-                  SizedBox(height: 12), // Reduced space before the button
+                  SizedBox(height: 12),
                   Center(
                     child: ElevatedButton(
                       onPressed: () {

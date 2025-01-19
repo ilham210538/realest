@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:realest/CarSearchPage.dart';
 import 'package:realest/PreprocessingTestPage.dart';
 import 'package:realest/firebase_options.dart';
@@ -7,6 +10,8 @@ import 'image_display.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
 import 'loginPage.dart'; // Import your login screen
+
+final ImagePicker _picker = ImagePicker();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +41,7 @@ class CarClassificationApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/login',
+      initialRoute: '/main',
       routes: {
         '/home': (context) => AuthWrapper(),
         '/login': (context) => LoginScreen(),
@@ -69,7 +74,10 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with AutomaticKeepAliveClientMixin<MainPage> {
+  @override
+  bool get wantKeepAlive => true;
   String? notificationMessage;
 
   @override
@@ -143,6 +151,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required to keep alive the state
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -290,34 +299,48 @@ class _MainPageState extends State<MainPage> {
                     color: Color.fromARGB(255, 128, 0, 32),
                   ),
                 ),
+// Predict from Camera Button
                 SizedBox(height: 35),
                 _buildButton(
                   context,
                   label: 'Predict from Camera',
                   icon: Icons.camera_alt,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ImageDisplay(source: 'camera')),
-                    );
+                  onPressed: () async {
+                    final pickedFile =
+                        await _picker.pickImage(source: ImageSource.camera);
+                    if (pickedFile != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ImageDisplay(image: File(pickedFile.path)),
+                        ),
+                      );
+                    }
                   },
                 ),
+
+// Predict from Gallery Button
                 SizedBox(height: 20),
                 _buildButton(
                   context,
                   label: 'Predict from Gallery',
                   icon: Icons.photo_library,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
+                  onPressed: () async {
+                    final pickedFile =
+                        await _picker.pickImage(source: ImageSource.gallery);
+                    if (pickedFile != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
                           builder: (context) =>
-                              ImageDisplay(source: 'gallery')),
-                      // PreprocessingTestPage(source: 'gallery')),
-                    );
+                              ImageDisplay(image: File(pickedFile.path)),
+                        ),
+                      );
+                    }
                   },
                 ),
+
                 SizedBox(height: 20),
                 _buildButton(
                   context,

@@ -73,7 +73,17 @@ class CarInfoPage extends StatelessWidget {
         future: _getVariants(carModel),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView(), // Empty list to ensure space is available
+                ),
+                LinearProgressIndicator(
+                  color: Color.fromARGB(255, 128, 0, 32),
+                  minHeight: 3.5,
+                ), // Remove the Padding to make it stick to the bottom
+              ],
+            );
           } else if (snapshot.hasError || snapshot.data?[0]['Error'] != null) {
             return Center(
               child: Text(
@@ -94,109 +104,124 @@ class CarInfoPage extends StatelessWidget {
 
             return ListView(
               padding: EdgeInsets.all(12),
-              children: groupedVariants.entries.map((entry) {
-                String groupKey = entry.key;
-                List<Map<String, String>> groupVariants = entry.value;
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    "Please select a Variant to view",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Heading for Make, Model, Generation
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 18),
-                            child: Text(
-                              groupKey,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 128, 0, 32),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                // Render grouped car variants
+                ...groupedVariants.entries.map((entry) {
+                  String groupKey = entry.key;
+                  List<Map<String, String>> groupVariants = entry.value;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Heading for Make, Model, Generation
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 18),
+                              child: Text(
+                                groupKey,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 128, 0, 32),
+                                ),
                               ),
                             ),
-                          ),
-                          // Variants heading with slight padding
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: Text(
-                              "Variants:",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            // Variants heading with slight padding
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                "Variants:",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          // Dropdown with Variants
-                          Column(
-                            children: groupVariants.map((variant) {
-                              return Column(
-                                children: [
-                                  ListTile(
-                                    contentPadding:
-                                        EdgeInsets.symmetric(vertical: 0.01),
-                                    title: Text(
-                                      variant['Variant']
-                                              ?.replaceAll('_', ' ') ??
-                                          '',
-                                      style: TextStyle(
+                            SizedBox(height: 8),
+                            // Dropdown with Variants
+                            Column(
+                              children: groupVariants.map((variant) {
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      contentPadding:
+                                          EdgeInsets.symmetric(vertical: 0.01),
+                                      title: Text(
+                                        variant['Variant']
+                                                ?.replaceAll('_', ' ') ??
+                                            '',
+                                        style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.blue[
-                                              900]), // Increased font size
-                                    ),
-                                    trailing: Icon(
-                                      Icons.keyboard_double_arrow_right_rounded,
-                                      color: Color.fromARGB(255, 128, 0, 32),
-                                      size: 25,
-                                    ),
-                                    onTap: () async {
-                                      // Assuming you have the full car name from the prediction
-                                      String predictedCar =
-                                          "${variant['Make']} ${variant['Model']} ${variant['Generation']}";
-                                      String variantName = variant['Variant']
-                                              ?.replaceAll('_', ' ') ??
-                                          'Unknown Variant';
-
-                                      // Combine the predicted car and variant name, but ensure the full name is formed once
-                                      String fullCarName =
-                                          '$predictedCar $variantName'; // Full car name with the variant
-
-                                      // Add history entry with the full car name only if it's not already in the history
-                                      await addHistoryEntry(
-                                          'Prediction Variant', fullCarName);
-
-                                      // Navigate to the VariantDetailPage
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              VariantDetailPage(
-                                            variantId: variant['DocumentID']!,
-                                          ),
+                                          color: Colors.blue[900],
                                         ),
-                                      );
-                                    },
-                                  ),
-                                  Divider(), // Separation line between variants
-                                ],
-                              );
-                            }).toList(),
-                          ),
-                        ],
+                                      ),
+                                      trailing: Icon(
+                                        Icons
+                                            .keyboard_double_arrow_right_rounded,
+                                        color: Color.fromARGB(255, 128, 0, 32),
+                                        size: 25,
+                                      ),
+                                      onTap: () async {
+                                        String predictedCar =
+                                            "${variant['Make']} ${variant['Model']} ${variant['Generation']}";
+                                        String variantName = variant['Variant']
+                                                ?.replaceAll('_', ' ') ??
+                                            'Unknown Variant';
+
+                                        String fullCarName =
+                                            '$predictedCar $variantName';
+
+                                        await addHistoryEntry(
+                                            'Prediction Variant', fullCarName);
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                VariantDetailPage(
+                                              variantId: variant['DocumentID']!,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Divider(),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }).toList(),
+                  );
+                }).toList(),
+                // Make sure there's no bottom padding on the last item so the progress bar sticks to the bottom
+                if (snapshot.connectionState == ConnectionState.waiting)
+                  LinearProgressIndicator(), // Show progress bar at the very bottom
+              ],
             );
           }
         },
