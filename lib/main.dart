@@ -41,7 +41,7 @@ class CarClassificationApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/main',
+      initialRoute: '/login',
       routes: {
         '/home': (context) => AuthWrapper(),
         '/login': (context) => LoginScreen(),
