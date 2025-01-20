@@ -890,20 +890,26 @@ class _LoanCalculatorPageState extends State<LoanCalculatorPage> {
       {String? hint}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment:
+            CrossAxisAlignment.start, // Align label to the start
         children: [
-          // Label on the left side
+          // Label Text
           Text(
             label,
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            softWrap: true, // Allow text to wrap onto the next line
           ),
-          // Input box on the right side
+          SizedBox(height: 6), // Space between label and input box
+
+          // Input Field
           Container(
-            width: 130, // Adjust width as necessary
+            width: double.infinity, // Let it stretch to fit the parent
+            constraints: BoxConstraints(maxWidth: 200), // Adjust as necessary
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),

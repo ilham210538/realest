@@ -270,90 +270,90 @@ class _MainPageState extends State<MainPage>
           Padding(
             padding:
                 const EdgeInsets.symmetric(horizontal: 30.0, vertical: 20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Center(
-                  child: Image.asset(
-                    'assets/AUTOSCAN-removebg-preview.png',
-                    width: 700,
+            child: SingleChildScrollView(
+              // Make the page scrollable
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Center(
+                    child: Image.asset(
+                      'assets/AUTOSCAN-removebg-preview.png',
+                      width: 700,
+                    ),
                   ),
-                ),
-                Text(
-                  'Welcome to AUTOSCAN!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w900,
-                    color: Color.fromARGB(255, 128, 0, 32),
+                  Text(
+                    'Welcome to AUTOSCAN!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w900,
+                      color: Color.fromARGB(255, 128, 0, 32),
+                    ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  'An app created to predict car models from images',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Color.fromARGB(255, 128, 0, 32),
+                  SizedBox(height: 5),
+                  Text(
+                    'An app created to predict car models from images',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Color.fromARGB(255, 128, 0, 32),
+                    ),
                   ),
-                ),
-// Predict from Camera Button
-                SizedBox(height: 35),
-                _buildButton(
-                  context,
-                  label: 'Predict from Camera',
-                  icon: Icons.camera_alt,
-                  onPressed: () async {
-                    final pickedFile =
-                        await _picker.pickImage(source: ImageSource.camera);
-                    if (pickedFile != null) {
+                  SizedBox(height: 35),
+                  _buildButton(
+                    context,
+                    label: 'Predict from Camera',
+                    icon: Icons.camera_alt,
+                    onPressed: () async {
+                      final pickedFile =
+                          await _picker.pickImage(source: ImageSource.camera);
+                      if (pickedFile != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ImageDisplay(image: File(pickedFile.path)),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  _buildButton(
+                    context,
+                    label: 'Predict from Gallery',
+                    icon: Icons.photo_library,
+                    onPressed: () async {
+                      final pickedFile =
+                          await _picker.pickImage(source: ImageSource.gallery);
+                      if (pickedFile != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ImageDisplay(image: File(pickedFile.path)),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  _buildButton(
+                    context,
+                    label: 'Search a Car',
+                    icon: Icons.search,
+                    onPressed: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ImageDisplay(image: File(pickedFile.path)),
-                        ),
+                            builder: (context) => CarSearchPage()),
                       );
-                    }
-                  },
-                ),
-
-// Predict from Gallery Button
-                SizedBox(height: 20),
-                _buildButton(
-                  context,
-                  label: 'Predict from Gallery',
-                  icon: Icons.photo_library,
-                  onPressed: () async {
-                    final pickedFile =
-                        await _picker.pickImage(source: ImageSource.gallery);
-                    if (pickedFile != null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ImageDisplay(image: File(pickedFile.path)),
-                        ),
-                      );
-                    }
-                  },
-                ),
-
-                SizedBox(height: 20),
-                _buildButton(
-                  context,
-                  label: 'Search a Car',
-                  icon: Icons.search,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CarSearchPage()),
-                    );
-                  },
-                ),
-              ],
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           if (notificationMessage != null)

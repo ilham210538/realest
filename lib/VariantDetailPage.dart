@@ -225,18 +225,18 @@ class VariantDetailPage extends StatelessWidget {
                                     color: Color.fromARGB(255, 128, 0, 32),
                                     size: 26,
                                   ),
-                                  title: Row(
-                                    children: [
-                                      SizedBox(width: 10),
-                                      Text(
-                                        category.key,
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ],
+                                  title: Text(
+                                    category.key,
+                                    style: TextStyle(
+                                      fontSize:
+                                          18, // Slightly smaller font for longer names
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                    softWrap:
+                                        true, // Allows text to wrap to the next line
+                                    overflow: TextOverflow
+                                        .visible, // Ensures text is fully displayed
                                   ),
                                   children: [
                                     for (var entry in category.value.entries)

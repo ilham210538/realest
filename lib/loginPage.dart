@@ -91,98 +91,103 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Align(
-              alignment: Alignment.topCenter,
-              child: Image.asset(
-                'assets/AUTOSCAN-removebg-preview.png',
-                width: 400,
+        child: SingleChildScrollView(
+          // Enables scrolling
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch, // Ensures horizontal stretching
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topCenter,
+                child: Image.asset(
+                  'assets/AUTOSCAN-removebg-preview.png',
+                  width: 400,
+                ),
               ),
-            ),
-            Text(
-              'Welcome!',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
-                color: Color.fromARGB(255, 128, 0, 32),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Enter credentials to log in',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                color: Color.fromARGB(255, 128, 0, 32),
-              ),
-            ),
-            SizedBox(height: 30),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 16),
-            // Display a user-friendly error message
-            if (errorMessage != null)
               Text(
-                errorMessage!,
-                style: TextStyle(color: Colors.red, fontSize: 14),
+                'Welcome!',
                 textAlign: TextAlign.center,
-              ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _login,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 128, 0, 32),
-                textStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w900,
+                  color: Color.fromARGB(255, 128, 0, 32),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Enter credentials to log in',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromARGB(255, 128, 0, 32),
                 ),
-                foregroundColor:
-                    Color.fromARGB(255, 245, 245, 220), // Text color (beige)
-                minimumSize: Size(250, 45),
               ),
-              child: Text("Login"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignupScreen()),
-                );
-              },
-              child: Text(
-                "Don't have an account? Sign up",
-                style: TextStyle(color: Color.fromARGB(255, 128, 0, 32)),
+              SizedBox(height: 30),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 16),
+              // Display a user-friendly error message
+              if (errorMessage != null)
+                Text(
+                  errorMessage!,
+                  style: TextStyle(color: Colors.red, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 128, 0, 32),
+                  textStyle: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  foregroundColor:
+                      Color.fromARGB(255, 245, 245, 220), // Text color (beige)
+                  minimumSize: Size(250, 45),
+                ),
+                child: Text("Login"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SignupScreen()),
+                  );
+                },
+                child: Text(
+                  "Don't have an account? Sign up",
+                  style: TextStyle(color: Color.fromARGB(255, 128, 0, 32)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -257,85 +262,90 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Align(
-              alignment: Alignment.topCenter,
-              child: Image.asset(
-                'assets/AUTOSCAN-removebg-preview.png',
-                width: 400,
+        child: SingleChildScrollView(
+          // Added to make the page scrollable
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.stretch, // Ensures widgets stretch if needed
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topCenter,
+                child: Image.asset(
+                  'assets/AUTOSCAN-removebg-preview.png',
+                  width: 400,
+                ),
               ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Account Creation',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
-                color: Color.fromARGB(255, 128, 0, 32),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Please create an account to access features',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-                color: Color.fromARGB(255, 128, 0, 32),
-              ),
-            ),
-            SizedBox(height: 30),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
-              ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: "Password",
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 16),
-            if (errorMessage != null)
+              SizedBox(height: 10),
               Text(
-                errorMessage!,
-                style: TextStyle(color: Colors.red),
-              ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _signup,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 128, 0, 32),
-                textStyle: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                'Account Creation',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w900,
+                  color: Color.fromARGB(255, 128, 0, 32),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                foregroundColor:
-                    Color.fromARGB(255, 245, 245, 220), // Text color (beige)
-                minimumSize: Size(250, 45),
               ),
-              child: Text("Sign Up"),
-            ),
-          ],
+              SizedBox(height: 10),
+              Text(
+                'Please create an account to access features',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Color.fromARGB(255, 128, 0, 32),
+                ),
+              ),
+              SizedBox(height: 30),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  labelStyle: TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+                obscureText: true,
+              ),
+              SizedBox(height: 16),
+              if (errorMessage != null)
+                Text(
+                  errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _signup,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 128, 0, 32),
+                  textStyle: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  foregroundColor:
+                      Color.fromARGB(255, 245, 245, 220), // Text color (beige)
+                  minimumSize: Size(250, 45),
+                ),
+                child: Text("Sign Up"),
+              ),
+            ],
+          ),
         ),
       ),
     );
